@@ -2,19 +2,16 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-// واجهة للعناصر القابلة للشحن
 interface Shippable {
     String getName();
     double getWeight();
 }
 
-// واجهة للمنتجات القابلة للانتهاء
 interface Expirable {
     boolean isExpired();
     Date getExpiryDate();
 }
 
-// فئة أساسية للمنتج
 abstract class Product {
     private String name;
     private double price;
@@ -45,7 +42,7 @@ abstract class Product {
     public abstract boolean requiresShipping();
 }
 
-// منتجات لا تنتهي صلاحيتها ولا تحتاج شحنًا
+
 class NonExpirableNonShippableProduct extends Product {
     public NonExpirableNonShippableProduct(String name, double price, int quantity) {
         super(name, price, quantity);
@@ -57,7 +54,7 @@ class NonExpirableNonShippableProduct extends Product {
     }
 }
 
-// منتجات تنتهي صلاحيتها وتحتاج شحنًا
+
 class ExpirableShippableProduct extends Product implements Expirable, Shippable {
     private Date expiryDate;
     private double weight;
@@ -94,7 +91,7 @@ class ExpirableShippableProduct extends Product implements Expirable, Shippable 
     }
 }
 
-// منتجات لا تنتهي صلاحيتها ولكن تحتاج شحنًا
+
 class NonExpirableShippableProduct extends Product implements Shippable {
     private double weight;
 
@@ -119,7 +116,7 @@ class NonExpirableShippableProduct extends Product implements Shippable {
     }
 }
 
-// فئة عنصر العربة
+
 class CartItem {
     private Product product;
     private int quantity;
@@ -142,7 +139,6 @@ class CartItem {
     }
 }
 
-// فئة عربة التسوق
 class ShoppingCart {
     private List<CartItem> items;
 
@@ -155,7 +151,6 @@ class ShoppingCart {
             throw new IllegalArgumentException("Not enough stock for " + product.getName());
         }
 
-        // التحقق من انتهاء الصلاحية للمنتجات القابلة للانتهاء
         if (product instanceof Expirable) {
             Expirable expirableProduct = (Expirable) product;
             if (expirableProduct.isExpired()) {
@@ -163,7 +158,6 @@ class ShoppingCart {
             }
         }
 
-        // البحث عن المنتج في العربة
         for (CartItem item : items) {
             if (item.getProduct().equals(product)) {
                 item = new CartItem(product, item.getQuantity() + quantity);
@@ -171,7 +165,6 @@ class ShoppingCart {
             }
         }
 
-        // إضافة منتج جديد إلى العربة
         items.add(new CartItem(product, quantity));
     }
 
@@ -200,7 +193,7 @@ class ShoppingCart {
     }
 }
 
-// فئة العميل
+
 class Customer {
     private String name;
     private double balance;
@@ -226,7 +219,6 @@ class Customer {
     }
 }
 
-// خدمة الشحن
 class ShippingService {
     public static void shipItems(List<Shippable> items) {
         if (items.isEmpty()) return;
@@ -260,14 +252,12 @@ class ShippingService {
     }
 }
 
-// فئة الدفع
 class CheckoutService {
     public static void checkout(Customer customer, ShoppingCart cart) {
         if (cart.isEmpty()) {
             throw new IllegalStateException("Cannot checkout with empty cart");
         }
 
-        // التحقق من توفر جميع المنتجات وعدم انتهاء صلاحيتها
         for (CartItem item : cart.getItems()) {
             Product product = item.getProduct();
             if (product.getQuantity() < item.getQuantity()) {
@@ -288,19 +278,16 @@ class CheckoutService {
             throw new IllegalStateException("Insufficient customer balance");
         }
 
-        // خصم المبلغ من رصيد العميل
         customer.deductBalance(totalAmount);
 
-        // تحديث كمية المنتجات
+
         for (CartItem item : cart.getItems()) {
             Product product = item.getProduct();
             product.setQuantity(product.getQuantity() - item.getQuantity());
         }
 
-        // طباعة الفاتورة
         printReceipt(cart, subtotal, shippingFees, totalAmount, customer);
 
-        // إرسال العناصر القابلة للشحن
         ShippingService.shipItems(shippableItems);
     }
 
